@@ -1,4 +1,4 @@
-from functions.data_generator import app
+from functions.data_generator_vendor_a import app
 
 
 def test_stock_checker():

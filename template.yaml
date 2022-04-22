@@ -1,0 +1,170 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  monitoring-tasks-emf-sample
+
+  SAM Template for monitoring-tasks-emf-sample
+
+Globals:
+  Function:
+    Runtime: python3.9
+    Handler: app.lambda_handler
+    Environment:
+      Variables:
+        # set CloudWatch Metrics Namespace used by aws-embedded-metrics library
+        # https://github.com/awslabs/aws-embedded-metrics-python
+        AWS_EMF_NAMESPACE: MonitoringTasksEMF
+
+Resources:
+
+  S3BucketRaw: # Creates the S3 bucket which will contain the raw data from two vendors - A and B
+    Type: "AWS::S3::Bucket"
+
+  S3BucketProcessed: # Creates the S3 bucket which will contain the processed and curated data
+    Type: "AWS::S3::Bucket"
+
+  DataGeneratorVendorAFunction: # Creates the Lambda function which loads a test file every hour into the Raw S3 bucket
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: src/functions/data_generator_vendor_a/
+      Description: This function loads a test file hourly into the vendor_a folder in the Raw S3 bucket
+      Environment:
+        Variables:
+          RAW_BUCKET_NAME: !Ref S3BucketRaw
+      Events:
+        CronEvent:
+          Type: Schedule
+          Properties:
+            Schedule: "rate(1 hour)"
+      Handler: app.lambda_handler
+      Policies:
+        - S3WritePolicy:
+            BucketName: !Ref S3BucketRaw
+      Runtime: python3.9
+      Timeout: 60
+
+  DataGeneratorVendorBFunction: # Creates the Lambda function which loads a test file daily into the Raw S3 bucket
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: src/functions/data_generator_vendor_b/
+      Description: This function loads a test file daily into the vendor_b folder in the Raw S3 bucket
+      Environment:
+        Variables:
+          RAW_BUCKET_NAME: !Ref S3BucketRaw
+      Events:
+        CronEvent:
+          Type: Schedule
+          Properties:
+            Schedule: "rate(1 day)"
+      Handler: app.lambda_handler
+      Policies:
+        - S3WritePolicy:
+            BucketName: !Ref S3BucketRaw
+      Runtime: python3.9
+      Timeout: 60
+
+  DataProcessorFunction: # Creates the Lambda function which processes the test data in the Raw S3 bucket and stores into the Processed S3 bucket
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: src/functions/data_processor/
+      Description: This function processes the test data once it lands in the Raw S3 bucket
+      Environment:
+        Variables:
+          RAW_BUCKET_NAME: !Ref S3BucketRaw
+          PROCESSED_BUCKET_NAME: !Ref S3BucketProcessed
+      Events:
+        S3Event:
+          Type: S3
+          Properties:
+            Bucket: !Ref S3BucketRaw
+            Events: s3:ObjectCreated:*
+      Handler: app.lambda_handler
+      Policies:
+        - S3ReadPolicy:
+            BucketName: !Ref S3BucketRaw
+        - S3WritePolicy:
+            BucketName: !Ref S3BucketProcessed
+      Runtime: python3.9
+      Timeout: 60
+
+
+  TimelinessCheckerFunction: # Creates the Lambda function which gets the data ingestion statistics from CloudWatch to upload a timeliness metric
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: src/functions/data_processor/
+      Description: This Lambda function checks statistics from CloudWatch to see if a vendor file was loaded and uploads a timeliness metric
+      Environment:
+          Variables:
+            VENDOR_A_EXPECTED_TIMEFRAME_HOURS: 1
+            VENDOR_B_EXPECTED_TIMEFRAME_HOURS: 24
+      Events:
+        Schedule:
+          Type: Schedule
+          Properties:
+            Schedule: "cron(0 * * * ? *)"
+            Enabled: true
+      Handler: app.lambda_handler
+      Policies:
+        - Statement:
+            - Effect: Allow
+              Action: cloudwatch:GetMetricStatistics
+              Resource: "*"
+      Runtime: python3.9
+      Timeout: 60
+
+  VendorATimelinessAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmDescription: Source data not ingested within expected timeframe
+      Namespace: MonitoringTasksEMF
+      Dimensions:
+        - Name: Ingestion
+          Value: vendor_a
+      MetricName: Timeliness
+      Statistic: Maximum
+      ComparisonOperator: LessThanThreshold
+      Threshold: 1.0
+      DatapointsToAlarm: 1
+      Period: 1800
+      EvaluationPeriods: 1
+      OKActions: [ ]
+      InsufficientDataActions: [ ]
+      TreatMissingData: notBreaching
+
+  VendorBTimelinessAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmDescription: Source data not ingested within expected timeframe
+      Namespace: MonitoringTasksEMF
+      Dimensions:
+        - Name: Ingestion
+          Value: vendor_b
+      MetricName: Timeliness
+      Statistic: Maximum
+      ComparisonOperator: LessThanThreshold
+      Threshold: 1.0
+      DatapointsToAlarm: 1
+      Period: 1800
+      EvaluationPeriods: 1
+      OKActions: []
+      InsufficientDataActions: []
+      TreatMissingData: notBreaching
+
+  LambdaFunctionProcessorErrorsAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmDescription: Too Many Errors
+      Namespace: AWS/Lambda
+      Dimensions:
+        - Name: FunctionName
+          Value: !Ref DataProcessorFunction
+      MetricName: Errors
+      Statistic: Sum
+      ComparisonOperator: GreaterThanOrEqualToThreshold
+      Threshold: 1.0
+      DatapointsToAlarm: 1
+      Period: 300
+      EvaluationPeriods: 1
+      OKActions: []
+      InsufficientDataActions: []
+      TreatMissingData: notBreaching
