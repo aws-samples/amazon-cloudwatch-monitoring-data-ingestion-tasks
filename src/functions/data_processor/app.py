@@ -51,14 +51,15 @@ def validate_data_types(data: dict) -> None:
     """
     # Check data types for the values in the data
     if (
-        isinstance(data["name"], str) and
-        isinstance(data["status"], str) and
-        data["object_id"].isdigit()
+            isinstance(data["name"], str) and
+            isinstance(data["status"], str) and
+            data["object_id"].isdigit()
     ):
         return
     else:
         raise TypeError(f"Invalid data type(s) for value(s) in the data: "
                         f" {data}")
+
 
 def write_processed_file(s3_client: botocore.client.BaseClient,
                          processed_s3_bucket: str,

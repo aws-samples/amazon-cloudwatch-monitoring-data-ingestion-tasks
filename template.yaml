@@ -19,9 +19,13 @@ Resources:
 
   S3BucketRaw: # Creates the S3 bucket which will contain the raw data from two vendors - A and B
     Type: "AWS::S3::Bucket"
+    Properties:
+      BucketName: !Sub "monitoring-emf-demo-${AWS::Region}-${AWS::AccountId}-raw"
 
   S3BucketProcessed: # Creates the S3 bucket which will contain the processed and curated data
     Type: "AWS::S3::Bucket"
+    Properties:
+      BucketName: !Sub "monitoring-emf-demo-${AWS::Region}-${AWS::AccountId}-processed"
 
   DataGeneratorVendorAFunction: # Creates the Lambda function which loads a test file every hour into the Raw S3 bucket
     Type: AWS::Serverless::Function
@@ -30,7 +34,7 @@ Resources:
       Description: This function loads a test file hourly into the vendor_a folder in the Raw S3 bucket
       Environment:
         Variables:
-          RAW_BUCKET_NAME: !Ref S3BucketRaw
+          RAW_BUCKET_NAME: !Sub "monitoring-emf-demo-${AWS::Region}-${AWS::AccountId}-raw"
       Events:
         CronEvent:
           Type: Schedule
@@ -38,8 +42,8 @@ Resources:
             Schedule: "rate(1 hour)"
       Handler: app.lambda_handler
       Policies:
-        - S3WritePolicy:
-            BucketName: !Ref S3BucketRaw
+        S3WritePolicy:
+          BucketName: !Ref S3BucketRaw
       Runtime: python3.9
       Timeout: 60
 
@@ -50,7 +54,7 @@ Resources:
       Description: This function loads a test file daily into the vendor_b folder in the Raw S3 bucket
       Environment:
         Variables:
-          RAW_BUCKET_NAME: !Ref S3BucketRaw
+          RAW_BUCKET_NAME: !Sub "monitoring-emf-demo-${AWS::Region}-${AWS::AccountId}-raw"
       Events:
         CronEvent:
           Type: Schedule
@@ -58,8 +62,8 @@ Resources:
             Schedule: "rate(1 day)"
       Handler: app.lambda_handler
       Policies:
-        - S3WritePolicy:
-            BucketName: !Ref S3BucketRaw
+        S3WritePolicy:
+          BucketName: !Ref S3BucketRaw
       Runtime: python3.9
       Timeout: 60
 
@@ -70,10 +74,10 @@ Resources:
       Description: This function processes the test data once it lands in the Raw S3 bucket
       Environment:
         Variables:
-          RAW_BUCKET_NAME: !Ref S3BucketRaw
-          PROCESSED_BUCKET_NAME: !Ref S3BucketProcessed
+          RAW_BUCKET_NAME: !Sub "monitoring-emf-demo-${AWS::Region}-${AWS::AccountId}-raw"
+          PROCESSED_BUCKET_NAME: !Sub "monitoring-emf-demo-${AWS::Region}-${AWS::AccountId}-processed"
       Events:
-        S3Event:
+        S3NewObjectEvent:
           Type: S3
           Properties:
             Bucket: !Ref S3BucketRaw
@@ -81,9 +85,9 @@ Resources:
       Handler: app.lambda_handler
       Policies:
         - S3ReadPolicy:
-            BucketName: !Ref S3BucketRaw
+            BucketName: !Sub "monitoring-emf-demo-${AWS::Region}-${AWS::AccountId}-raw"
         - S3WritePolicy:
-            BucketName: !Ref S3BucketProcessed
+            BucketName: !Sub "monitoring-emf-demo-${AWS::Region}-${AWS::AccountId}-processed"
       Runtime: python3.9
       Timeout: 60
 
