@@ -95,7 +95,7 @@ Resources:
   TimelinessCheckerFunction: # Creates the Lambda function which gets the data ingestion statistics from CloudWatch to upload a timeliness metric
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: src/functions/data_processor/
+      CodeUri: src/functions/timeliness_checker/
       Description: This Lambda function checks statistics from CloudWatch to see if a vendor file was loaded and uploads a timeliness metric
       Environment:
           Variables:

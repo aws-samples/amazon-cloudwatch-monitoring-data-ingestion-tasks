@@ -42,6 +42,7 @@ def lambda_handler(event, context) -> None:
 
     # Create variables
     current_date = datetime.today().strftime("%Y-%m-%d")
+    current_datetime = datetime.now().strftime("%Y_%m_%d-%I:%M:%S")
     vendor_data = {
         "name": "ABC GOODS INC.",
         "status": "DELIVERED",
@@ -52,7 +53,7 @@ def lambda_handler(event, context) -> None:
     vendor_json = json.dumps(vendor_data)
 
     # Create S3 prefix
-    s3_key = f"vendor_a/{current_date}/{current_date}-raw-file.json"
+    s3_key = f"vendor_a/{current_date}/{current_datetime}-raw-file.json"
 
     # Upload data into JSON file in Raw S3 bucket
     s3_client.put_object(

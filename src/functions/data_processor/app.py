@@ -53,7 +53,7 @@ def validate_data_types(data: dict) -> None:
     if (
             isinstance(data["name"], str) and
             isinstance(data["status"], str) and
-            data["object_id"].isdigit()
+            isinstance(data["object_id"], int)
     ):
         return
     else:
@@ -142,7 +142,7 @@ def lambda_handler(event, context, metrics) -> None:
 
     # Read in the vendor JSON file
     result = s3_client.get_object(Bucket=raw_s3_bucket, Key=s3_object_key)
-    data = result["Body"].read().decode()
+    data = eval(result["Body"].read().decode())
 
     # Check if data fields are valid
     validate_data_fields(data)
