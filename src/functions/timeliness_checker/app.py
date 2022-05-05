@@ -82,7 +82,7 @@ def lambda_handler(event, context) -> None:
                 current_time - timedelta(hours=timeframe_hours + 1)).isoformat()
 
         response = cloudwatch.get_metric_statistics(
-            Namespace="MonitoringTasksDemo",
+            Namespace="MonitoringTasksEMF",
             MetricName="Success",
             Dimensions=[{"Name": "Ingestion", "Value": source}],
             StartTime=start_time,

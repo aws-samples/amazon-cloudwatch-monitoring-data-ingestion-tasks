@@ -42,7 +42,7 @@ def lambda_handler(event, context) -> None:
 
     # Create variables
     current_date = datetime.today().strftime("%Y-%m-%d")
-    current_datetime = datetime.now().strftime("%Y_%m_%d-%I:%M:%S")
+    current_datetime = datetime.now().strftime("%Y_%m_%d-%I_%M_%S")
     vendor_data = {
         "name": "ABC GOODS INC.",
         "status": "DELIVERED",

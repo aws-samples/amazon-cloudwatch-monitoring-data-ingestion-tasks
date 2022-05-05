@@ -89,9 +89,10 @@ def write_processed_file(s3_client: botocore.client.BaseClient,
     """
     # Create date variable
     current_date = datetime.today().strftime("%Y-%m-%d")
+    current_datetime = datetime.now().strftime("%Y_%m_%d-%I_%M_%S")
 
     # Create S3 prefix
-    s3_key = f"{source}/{current_date}/{current_date}-processed-file.json"
+    s3_key = f"{source}/{current_date}/{current_datetime}-processed-file.json"
 
     # Create JSON object
     processed_json_obj = json.dumps(data)
@@ -151,7 +152,7 @@ def lambda_handler(event, context, metrics) -> None:
     validate_data_types(data)
 
     # Write data to appropriate partition in the Processed S3 bucket
-    write_processed_file(processed_s3_bucket, s3_client, source, data)
+    write_processed_file(s3_client, processed_s3_bucket, source, data)
 
     # Emit CloudWatch metric for successful data processing
     metrics.set_dimensions({"Ingestion": source})
