@@ -1,9 +1,13 @@
+---
 AWSTemplateFormatVersion: "2010-09-09"
 Transform: AWS::Serverless-2016-10-31
+
 Description: >
   monitoring-tasks-emf-sample
 
   SAM Template for monitoring-tasks-emf-sample
+
+  **WARNING** This template creates Amazon S3 Buckets, AWS Lambda Functions, and related resources. You will be billed for the AWS resources used if you create a stack from this template.
 
 Globals:
   Function:
@@ -18,12 +22,12 @@ Globals:
 Resources:
 
   S3BucketRaw: # Creates the S3 bucket which will contain the raw data from two vendors - A and B
-    Type: "AWS::S3::Bucket"
+    Type: AWS::S3::Bucket
     Properties:
       BucketName: !Sub "monitoring-emf-demo-${AWS::Region}-${AWS::AccountId}-raw"
 
   S3BucketProcessed: # Creates the S3 bucket which will contain the processed and curated data
-    Type: "AWS::S3::Bucket"
+    Type: AWS::S3::Bucket
     Properties:
       BucketName: !Sub "monitoring-emf-demo-${AWS::Region}-${AWS::AccountId}-processed"
 
