@@ -1,16 +1,7 @@
-import boto3
 import os
-import pytest
-from moto import mock_cloudwatch
 from unittest.mock import patch
+
 from src.functions.timeliness_checker.app import lambda_handler
-
-
-@pytest.fixture(scope="function")
-def cloudwatch_client():
-    with mock_cloudwatch():
-        client = boto3.client("cloudwatch", region_name="us-east-1")
-        yield client
 
 
 @patch("src.functions.timeliness_checker.app.emit_timeliness_metric")
@@ -19,7 +10,7 @@ def cloudwatch_client():
     "VENDOR_B_EXPECTED_TIMEFRAME_HOURS": "24"
 
 })
-def test_timeliness_checker(mock_emit_timeliness_metric, cloudwatch_client):
+def test_timeliness_checker(mock_emit_timeliness_metric, mock_cloudwatch_client):
     expected_vendor_a_timeframe_hours = 1
     expected_vendor_a_timeliness_metric = 0
     expected_vendor_b_timeframe_hours = 24

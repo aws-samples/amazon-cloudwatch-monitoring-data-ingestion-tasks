@@ -29,7 +29,7 @@ def validate_data_fields(data: dict) -> None:
         return
     else:
         raise KeyError(f"Invalid key field found in the data: {data}"
-                       f"Key fields must contain: 'name', 'status', object_id")
+                       f"Key fields must contain: 'name', 'status', 'object_id'")
 
 
 def validate_data_types(data: dict) -> None:
