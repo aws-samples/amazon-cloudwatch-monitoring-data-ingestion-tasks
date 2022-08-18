@@ -1,24 +1,24 @@
 # Monitoring Data Ingestion Tasks With AWS CloudWatch Metrics and Alarms
 
-This repository contains source code and supporting files for a serverless 
-application that you can deploy with the SAM CLI to create a 
-solution that monitors data ingestion tasks. It includes the following files 
+This repository contains source code and supporting files for a serverless
+application that you can deploy with the SAM CLI to create a
+solution that monitors data ingestion tasks. It includes the following files
 and folders:
 
-- src/functions/ - Source code for the application's Lambda functions which 
-  generates data for Vendor A and Vendor B, processes the data, and creates 
+- src/functions/ - Source code for the application's Lambda functions which
+  generates data for Vendor A and Vendor B, processes the data, and creates
   metrics sent to Amazon CloudWatch
 - tests/ - Unit tests for the Lambda functions' application code.
 - template.yaml - A template that defines the application's AWS resources.
 
-You can use this repository to create a solution which provides monitoring 
-and alerting on a data ingestion workload using Amazon CloudWatch Embedded Metric Format. 
-It also provides an approach to monitoring file ingestion activity within an 
-expected timeframe using Amazon CloudWatch Metrics and Alarms.     
+You can use this repository to create a solution which provides monitoring
+and alerting on a data ingestion workload using Amazon CloudWatch Embedded Metric Format.
+It also provides an approach to monitoring file ingestion activity within an
+expected timeframe using Amazon CloudWatch Metrics and Alarms.
 
-The application uses several AWS resources, including AWS Lambda functions, 
-Amazon S3 buckets, and various Amazon CloudWatch components. These resources 
-are defined in the `template.yaml` file in this project. 
+The application uses several AWS resources, including AWS Lambda functions,
+Amazon S3 buckets, and various Amazon CloudWatch components. These resources
+are defined in the `template.yaml` file in this project.
 
 ## Deploy the application
 
@@ -57,9 +57,9 @@ src$ python -m pytest tests/unit -v
 
 ## Cleanup
 
-To avoid incurring further charges, please use the following instructions to delete all the resources created from this solution. 
+To avoid incurring further charges, please use the following instructions to delete all the resources created from this solution.
 
-Assuming you used your project name for the stack name, run the following 
+Assuming you used your project name for the stack name, run the following
 command to delete the resources with the SAM CLI:
 
 ```bash
@@ -67,18 +67,15 @@ sam delete --stack-name src
 ```
 
 ## Resources
-For more information on CloudWatch Logs Embedded Metric Format, please visit 
+For more information on CloudWatch Logs Embedded Metric Format, please visit
 the [service documentation](https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/CloudWatch_Embedded_Metric_Format.html) and related [AWS blog post](https://aws.amazon.com/blogs/mt/enhancing-workload-observability-using-amazon-cloudwatch-embedded-metric-format/).
 
-The [AWS SAM developer guide](https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/what-is-sam.html) 
-provides an introduction to SAM specification, the SAM CLI, and serverless 
+The [AWS SAM developer guide](https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/what-is-sam.html)
+provides an introduction to SAM specification, the SAM CLI, and serverless
 application concepts.
 
 ## Security
 Please see [CONTRIBUTING](CONTRIBUTING.md#security-issue-notifications) for more information.
 
 ## License
-This library is licensed under the ___ License. See the LICENSE file.
-
-
-
+This library is licensed under the MIT-0 License. See the LICENSE file.
